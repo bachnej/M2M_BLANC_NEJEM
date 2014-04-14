@@ -1,0 +1,4 @@
+node_modules
+credentials.json
+flows*.json
+nodes/node-red-nodes/
