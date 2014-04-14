@@ -17,7 +17,7 @@ Pour la collecte de mesures nous utilisons un sketch Arduino qui est exécuté s
 Installer l'IDE Arduino dédié à l'utilisation des cartes Intel Galileo. Une fois l'IDE installé, il faut lancer un script Arduino (fichier .ino) qui récupère les mesures d'un capteur et les publie sur le port série qui communique avec l'ordinateur. Le sketch présent dans le dossier Arduino/sketch publie des mesures simulées toutes les secondes sur le port série. Il est possible de visualiser la sortie du port série dans l'IDE Arduino afin de s'assurer que cette étape fonctionne.
 
 ###Etape 2 : OpenHAB 
-Récupérer le dossier OpenHAB. Afin de faire communiquer OpenHAB et notre serveur Mosquitto  nous devons configurer OpenHAB pour lui indiquer le broker à utiliser pour le binding MQTT. Le fichier contenant la configuration de OpenHAB est "OpenHAB/openhab-runtime-1/configurations/openhab_default.cfg" et la connexion au broker se fait de la manière suivante : 
+Récupérer le dossier OpenHAB. Afin de faire communiquer OpenHAB et notre broker Mosquitto  nous devons configurer OpenHAB pour lui indiquer le broker à utiliser pour le binding MQTT. Le fichier contenant la configuration de OpenHAB est "OpenHAB/openhab-runtime-1/configurations/openhab_default.cfg" et la connexion au broker se fait de la manière suivante : 
 
 >mqtt:local-mosquitto.url=tcp://localhost:1883  
 >mqtt:local-mosquitto.clientId=openHABClient (optionnel)
@@ -64,6 +64,24 @@ Dans la seconde partie nous allons utiliser la carte comme un micro-processeur a
 ![Alt text](/images/Architecture2.jpg "Architecture seconde partie")
 
 ### Connexion SSH avec la carte
-Nous utilisons la distribution linux du projet Yocto nommée "clanton". La distribution est installée sur une micro SD qui est en suite insérée dans la carte avant son boot. Contrairement à la distribution de base, celle-ci intègre un serveur SSH et permet donc de communiquer avec la carte facilement et de manière sécurisé. Pour pouvoir établir cette connexion il faut relier la carte et l'ordinateur à l'aide d'un câble Ethernet et s'assurer que les deux périphériques soient dans le même réseau. Nous avons utilisé Wireshark pour capturer les paquets provenant de la carte et ainsi connaître son adresse IP. Une fois l'adresse connue, nous avons changé l'adresse IP de la carte réseau de l'ordinateur avec l'adresse IP de la carte +1. Par exemple si la carte dispose de l'adresse `15.125.125.12`, l'adresse de l'ordinateur sera `15.125.125.12`. Une fois qu'il est possible depuis l'ordinateur de pinger la carte, on peut établir une connexion SSH en tapant la commande suivante dans un terminal : `ssh root@ip_de_la_carte`.
+Nous utilisons la distribution linux du projet Yocto nommée "clanton". La distribution est installée sur une micro SD qui est en suite insérée dans la carte avant son boot. Contrairement à la distribution de base, celle-ci intègre un serveur SSH et permet donc de communiquer avec la carte facilement et de manière sécurisé. Pour pouvoir établir cette connexion il faut relier la carte et l'ordinateur à l'aide d'un câble Ethernet et s'assurer que les deux périphériques soient dans le même réseau. Nous avons utilisé Wireshark pour capturer les paquets provenant de la carte et ainsi connaître son adresse IP. Une fois l'adresse connue, nous avons changé l'adresse IP de la carte réseau de l'ordinateur avec l'adresse IP de la carte +1. Par exemple si la carte dispose de l'adresse `15.125.125.12`, l'adresse de l'ordinateur sera `15.125.125.12`. Une fois qu'il est possible depuis l'ordinateur de pinger la carte, on peut établir une connexion SSH en tapant la commande suivante dans un terminal : `ssh root@ip_de_la_carte`. 
 
 ### Installation de Mosquitto
+Pour installer Mosquitto il suffit de copier les fichiers source sur la carte et de taper les commandes suivantes à l'intérieur du dossier : `make` et `make install`.
+
+### Script python
+#### Interaction avec les GPIO
+Maintenant que nous n'utilisons plus l'IDE Arduino, il va falloir récupérer les informations issues des GPIO directement depuis le système d'exploitation. Pour cette étape nous avons emprunté un capteur de gaz pour nous fournir des données. Nous allons utiliser sysfs pour lire l'information du capteur qui est un voltage sur la GPIO A0 et qui sera disponible sous forme de fichier. Les commandes pour utiliser la GPIO A0 en lecture sont les suivantes : 
+>root@clanton:~# echo -n "37" > /sys/class/gpio/export
+root@clanton:~# echo -n "out" > /sys/class/gpio/gpio37/direction
+root@clanton:~# echo -n "0" > /sys/class/gpio/gpio37/value
+>
+>source : http://www.malinov.com/Home/sergey-s-blog 
+
+Le voltage appliqué sur l'entrée A0 est maintenant disponible dans un fichier. Pour l'afficher taper la commande `cat /sys/bus/iio/devices/iio\:device0/in_voltage0_raw`. Cette valeur est à traiter pour calculer la valeur de la grandeur mesurée avec le capteur. Pour le calcul se référer à la documentation constructeur du capteur. Pour notre projet nous n'avons pas traité ces valeurs. 
+
+#### Lecture du fichier et publication MQTT en python
+Dans le dossier python se trouve un script permettant la lecture du fichier contenant la valeur du capteur et la publication d'un message MQTT avec la valeur lue. Pour lire le fichier nous utilisons la commande système `cat`. Pour envoyer un message MQTT nous utilisons l'exécutable "mosquitto_pub" qui permet de publier un message dans un certain topic. La commande exécutée dans le script est la suivante `mosquitto_pub -t capteur -m message_to_send` et permet de publier sur le broker Mosquitto local dans le topic capteur. Le script va lire toutes les secondes le fichier et publier un message si la valeur à changée depuis la dernière lecture. 
+
+### L'affichage et le stockage des données
+Pour cette partie il suffit de reprendre le travail de la partie 1 et de modifier l'adresse du broker MQTT en renseignant l'adresse de la carte. L'ordinateur devra bien sur être lui aussi relié par un câble Ethernet à la carte et faire partit du même réseau. 
