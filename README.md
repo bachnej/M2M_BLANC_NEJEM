@@ -78,7 +78,7 @@ Maintenant que nous n'utilisons plus l'IDE Arduino, il va falloir récupérer le
 >
 >root@clanton:~# echo -n "0" > /sys/class/gpio/gpio37/value
 >
->source : http://www.malinov.com/Home/sergey-s-blog 
+source : http://www.malinov.com/Home/sergey-s-blog 
 
 Le voltage appliqué sur l'entrée A0 est maintenant disponible dans un fichier. Pour l'afficher taper la commande `cat /sys/bus/iio/devices/iio\:device0/in_voltage0_raw`. Cette valeur est à traiter pour calculer la valeur de la grandeur mesurée avec le capteur. Pour le calcul se référer à la documentation constructeur du capteur. Pour notre projet nous n'avons pas traité ces valeurs. 
 
