@@ -1,6 +1,3 @@
-M2M_BLANC_NEJEM
-===============
-
 #M2M Project report
 
 Ce projet est réalisé dans le cadre du cours M2M, et vise à mettre en place une infrastructure de collecte de données de capteur.  Pour réaliser ce projet nous avons reçu une carte Intel Galileo ainsi qu'un capteur afin de disposer de tous les éléments pour la collecte d'informations. Le capteur fournit n'étant pas compatible avec notre carte, nous avons dans un premier temps simulé le capteur (avec des valeurs aléatoires)  et dans un second temps emprunté un capteur pour la seconde partie de ce projet.
