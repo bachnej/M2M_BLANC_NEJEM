@@ -11,6 +11,15 @@ Pour la collecte de mesures nous utilisons un sketch Arduino qui est exécuté s
 
 \* : La récupération des données d'un capteur sur un arduino n'étant pas une chose difficile nous n'expliquerons pas la procédure à suivre dans ce document.
 
+###Etape 1 : Intel Galileo
+Installer l'IDE Arduino dédié à l'utilisation des cartes Intel Galileo. Une fois l'IDE installé, il faut lancer un script Arduino (fichier .ino) qui récupère les mesures d'un capteur et les publie sur le port série qui communique avec l'ordinateur. Le sketch présent dans le dossier Arduino/sketch publie des mesures simulées toutes les secondes sur le port série. Il est possible de visualiser la sortie du port série dans l'IDE Arduino afin de s'assurer que cette étape fonctionne.
+
+###Etape 2 : OpenHAB 
+Récupérer le dossier OpenHAB. Afin de faire communiquer OpenHAB et notre serveur Mosquitto  nous devons configurer OpenHAB pour lui indiquer le broker à utiliser pour le binding MQTT. Le fichier contenant la configuration de OpenHAB est "OpenHAB/openhab-runtime-1/configurations/openhab_default.cfg" et la connexion au broker se fait de la manière suivante : 
+>mqtt:local-mosquitto.url=tcp://localhost:1883  
+>mqtt:local-mosquitto.clientId=openHABClient (optionnel)
+
+
 
 ## Seconde partie
 Dans la seconde partie nous allons utiliser la carte comme un micro-processeur avec une distribution linux allégée. Nous allons utiliser la distribution linux pour exécuter un broker MQTT (Mosquitto) directement sur la carte et relier la carte à un ordinateur via un câble Ethernet. Il est aussi possible de relier la carte à un routeur mais cela importe peu. De cette manière nous nous passons d'OpenHAB pour l'émission des valeurs vers le broker et il est désormais possible de réaliser plusieurs taches avec la carte (tout comme sur une vraie machine). 
