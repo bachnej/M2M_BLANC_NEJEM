@@ -16,10 +16,30 @@ Installer l'IDE Arduino dédié à l'utilisation des cartes Intel Galileo. Une f
 
 ###Etape 2 : OpenHAB 
 Récupérer le dossier OpenHAB. Afin de faire communiquer OpenHAB et notre serveur Mosquitto  nous devons configurer OpenHAB pour lui indiquer le broker à utiliser pour le binding MQTT. Le fichier contenant la configuration de OpenHAB est "OpenHAB/openhab-runtime-1/configurations/openhab_default.cfg" et la connexion au broker se fait de la manière suivante : 
+
 >mqtt:local-mosquitto.url=tcp://localhost:1883  
 >mqtt:local-mosquitto.clientId=openHABClient (optionnel)
 
+Il faut maintenant récupérer les données publiées sur le port série et les transmettre au broker. Il faut donc créer deux nouveaux items dans OpenHAB et cette création se fait dans le fichier "OpenHAB/openhab-runtime-1/configurations/items/demo.items". Nous créons un item de type String qui représente la mesure émise sur le port série que nous appelons SerialDevice.
 
+>String SerialDevice                "CAPTEUR [%s]"   { serial="/dev/cu.usbmodem1a121" } 
+>*Le nom du port série varie suivant les machines et leur système d'exploitation, il est à vérifier
+>dans l'IDE Arduino, en bas à droite de la fenêtre de l'IDE. 
+
+L'autre item est le message MQTT qui sera envoyé lors de la réception d'une nouvelle mesure. Ce message sera envoyé au broker nommé local-mosquitto (déclaré avant dans la configuration) et le topic du message sera "capteur". Les clients devront donc s'abonner au topic "capteur" pour recevoir les mesures. 
+
+>String message_MQTT  { mqtt=">[local-mosquitto:capteur:state:*:default]" }
+
+Une fois les items déclarés il suffit d'écrire la procédure d'envoie des mesures lors de la réception d'une nouvelle mesure sur le port série. Cela se fait facilement dans le fichier "OpenHAB/openhab-runtime-1/configurations/rules/demo.rules" auquel nous ajoutons la règle suivante : 
+
+>rule MQTT_sending
+>when
+>       Item SerialDevice received update
+>then
+>	    postUpdate(message_MQTT,SerialDevice.state)
+>end
+
+Une fois la règle ajoutée il suffit d'exécuter OpenHAB (et le broker Mosquitto) pour voir que les mesures sont maintenant publiées sur le broker grâce à OpenHAB.
 
 ## Seconde partie
 Dans la seconde partie nous allons utiliser la carte comme un micro-processeur avec une distribution linux allégée. Nous allons utiliser la distribution linux pour exécuter un broker MQTT (Mosquitto) directement sur la carte et relier la carte à un ordinateur via un câble Ethernet. Il est aussi possible de relier la carte à un routeur mais cela importe peu. De cette manière nous nous passons d'OpenHAB pour l'émission des valeurs vers le broker et il est désormais possible de réaliser plusieurs taches avec la carte (tout comme sur une vraie machine). 
