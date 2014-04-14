@@ -54,8 +54,12 @@ Aperçu du rendu :
 
 Pour récupérer les messages MQTT nous utilisons des inputs:mqtt. Ces objets permettent de s'abonner à un topic et de récupérer les messages pour les transmettre à d'autres objets NodeRed. Ensuite le message est envoyé à une fonction qui y ajoute un timestamp. En sortie de cette fonction nous utilisons l'objet outputs:debug pour afficher ce que nous allons stocker et l'objet storage:mongodb pour stocker les mesures et leur timestamp dans une collection nommée "capteur". Une fois le paramétrage de mongoDB et du broker MQTT en place il est possible de déployer l'application pour commencer à stocker les messages émis sur le broker avec le topic "capteur". 
 
+###Etape 4 : MQTTPanel (ou presque)
+Récupérer le dossier MQTTPanel. Ce dossier comporte un serveur web javascript ("server.js") qui est exécuté sur le port 8081 avec nodejs et une page web ("index.html") qui est la réponse du serveur à une requete ("localhost:8081/index"). Le serveur va utiliser la librairie "mqtt" pour se connecter au broker Mosquitto et récupérer les messages du topic "capteur". Lors de la réception d'une nouvelle valeur, le serveur va pousser la valeur vers les clients avec l'utilisation de la librairie socket.io qui permet de faire de la communication temps réel entre le client et le serveur. Le client va afficher la liste des valeurs reçues à l'aide de la librairie NVD3.js qui est une surcouche de D3.js qui permet d'afficher des graphes en javascript. L'affichage est raffraichit à la réception d'une nouvelle mesure et permet donc un affichage temps réel des informations issues du capteur. Une seconde page est disponible à l'adresse "localhost:8081/resume" qui permet d'afficher l'ensemble des valeurs stockées dans la base de données MongoDB. La récupération se fait via le serveur avec l'utilisation de la librairie "mongodb" qui permet d'instancier un client MongoDB en javascript.
+
 
 ## Seconde partie
 Dans la seconde partie nous allons utiliser la carte comme un micro-processeur avec une distribution linux allégée. Nous allons utiliser la distribution linux pour exécuter un broker MQTT (Mosquitto) directement sur la carte et relier la carte à un ordinateur via un câble Ethernet. Il est aussi possible de relier la carte à un routeur mais cela importe peu. De cette manière nous nous passons d'OpenHAB pour l'émission des valeurs vers le broker et il est désormais possible de réaliser plusieurs taches avec la carte (tout comme sur une vraie machine). 
 
+![Alt text](/images/Architecture2.jpg "Architecture seconde partie")
 
