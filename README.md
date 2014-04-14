@@ -73,7 +73,9 @@ Pour installer Mosquitto il suffit de copier les fichiers source sur la carte et
 #### Interaction avec les GPIO
 Maintenant que nous n'utilisons plus l'IDE Arduino, il va falloir récupérer les informations issues des GPIO directement depuis le système d'exploitation. Pour cette étape nous avons emprunté un capteur de gaz pour nous fournir des données. Nous allons utiliser sysfs pour lire l'information du capteur qui est un voltage sur la GPIO A0 et qui sera disponible sous forme de fichier. Les commandes pour utiliser la GPIO A0 en lecture sont les suivantes : 
 >root@clanton:~# echo -n "37" > /sys/class/gpio/export
+>
 >root@clanton:~# echo -n "out" > /sys/class/gpio/gpio37/direction
+>
 >root@clanton:~# echo -n "0" > /sys/class/gpio/gpio37/value
 >
 >source : http://www.malinov.com/Home/sergey-s-blog 
