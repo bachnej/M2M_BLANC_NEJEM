@@ -23,6 +23,7 @@ Récupérer le dossier OpenHAB. Afin de faire communiquer OpenHAB et notre serve
 Il faut maintenant récupérer les données publiées sur le port série et les transmettre au broker. Il faut donc créer deux nouveaux items dans OpenHAB et cette création se fait dans le fichier "OpenHAB/openhab-runtime-1/configurations/items/demo.items". Nous créons un item de type String qui représente la mesure émise sur le port série que nous appelons SerialDevice.
 
 >String SerialDevice                "CAPTEUR [%s]"   { serial="/dev/cu.usbmodem1a121" } 
+>
 >*Le nom du port série varie suivant les machines et leur système d'exploitation, il est à vérifier
 >dans l'IDE Arduino, en bas à droite de la fenêtre de l'IDE. 
 
